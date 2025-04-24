@@ -19,7 +19,7 @@ export class ProgressService {
       user: { id: userId },
       language: { id: createProgressDto.languageId },
     });
-
+    console.log('progress', progress);
     return await this.progressRepository.save(progress);
   }
 

@@ -216,7 +216,7 @@ export class ProgressController {
       userId,
       id,
     );
-
+    
     return AppResponse.successWithData({
       data: progress,
     });
