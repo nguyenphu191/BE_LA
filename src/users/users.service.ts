@@ -60,10 +60,22 @@ export class UsersService {
   }
 
   async findById(id: number) {
-    const user = this.userRepository.findOne({
-      where: { id },
-      relations: ['progress', 'achievements'],
-    });
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .select([
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.email',
+        'user.profileImageUrl',
+        'user.role',
+        'user.createdAt',
+      ])
+      .leftJoinAndSelect('user.progress', 'progress')
+      .leftJoin('user.userAchievements', 'userAchievements')
+      .leftJoinAndSelect('userAchievements.achievement', 'achievement')
+      .where('user.id = :id', { id })
+      .getOne();
 
     return user;
   }
@@ -90,7 +102,7 @@ export class UsersService {
     }
 
     if (file) {
-      updateUserDto.profile_image_url =
+      updateUserDto.profileImageUrl =
         await this.fileService.uploadFileToPublicBucket(file);
     }
 
