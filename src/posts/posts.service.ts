@@ -36,7 +36,13 @@ export class PostsService {
       imageUrls,
     });
 
-    return this.postRepository.save(post);
+    const savedPost = await this.postRepository.save(post);
+  
+  // Lấy post với thông tin đầy đủ của user
+  return this.postRepository.findOne({
+    where: { id: savedPost.id },
+    relations: ['user', 'language'],
+  });
   }
 
   async findAll(paginateDto: PaginateDto, languageId?: number) {
@@ -45,6 +51,7 @@ export class PostsService {
     const query = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.comments', 'comments')
+      .leftJoinAndSelect('comments.user', 'commentUser')
       .leftJoinAndSelect('post.likes', 'likes')
       .leftJoinAndSelect('post.user', 'user');
 
@@ -72,7 +79,7 @@ export class PostsService {
   findOne(id: number) {
     return this.postRepository.findOne({
       where: { id },
-      relations: ['user', 'comments'],
+      relations: ['user', 'comments', 'likes','comments.user'],
     });
   }
 
